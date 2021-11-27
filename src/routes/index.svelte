@@ -72,9 +72,9 @@ import { FibonacciSpiral } from '$lib/FibonacciSpiral';
 
         // Camera
         const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-        camera.position.x = 4
-        camera.position.y = 3
-        camera.position.z = 4
+        camera.position.x = 0
+        camera.position.y = 4
+        camera.position.z = 0
 
         scene.add(camera)
 
