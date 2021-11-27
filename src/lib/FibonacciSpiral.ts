@@ -25,15 +25,6 @@ export class FibonacciSpiral {
     }
 
 
-    // TODO: Need to calculate x,y coords for the arc now.
-    // Need to transform the squares as so: right, left, up, down. 
-
-    // *** THE CENTER POINT MOVES AS FOLLOWS: left, down, right up. 
-    // ^ magnitude (how many units to move) is the (n - 2) fib number. So the last to last one of the currentFibonacci.
-    //      - Need to access the memo cache to access that
-    // Then the radius is just gonna be the currentFibonacci
-
-
     private async startComputation() {
         this.currentIndex = 1
 
@@ -42,10 +33,25 @@ export class FibonacciSpiral {
                 this.currentIndex
             )
 
-            console.log(`The ${ this.currentIndex }th fibonacci number is ${ this.currentFibonacci }`)
-
             this.updateSpiral()
+
+
+
+            // TODO:
+            /**
+             * After every spiralUpdate, I need to zoom out
+             * the camera a bit. 
+             * 
+             * After adding camera zoom logic, instantiate
+             * a second fib spiral and then figure out 
+             * parameters for positioning it. Make em different colors,
+             * refer to my logo's color.
+             * 
+             * Then do UI, show "The memoized spiral has computed 36 fibonacci numbers so far"
+             */
             
+
+
             // Minimum 1 second delay between fib numbers
             await new Promise(resolve => setTimeout(resolve, 1_000))
             
@@ -60,22 +66,22 @@ export class FibonacciSpiral {
         const direction: Directions = (this.currentIndex - 1) % 4
 
         // Calculate magnitude to move center point
-        const magnitude = this.recentFibonaccis.array[1] ?? 0
+        const magnitude = -(this.recentFibonaccis.array[1] ?? 0)
 
         // Calculate center/origin coordinate
-        // if (direction == Directions.Left) {
-        //     this.arcCenter.x += magnitude / 2
-        // }
-        // else if (direction == Directions.Down) {
-        //     this.arcCenter.y += magnitude / 2
-        // }
-        // else if (direction == Directions.Right) {
-        //     this.arcCenter.x -= magnitude / 2
-        // }
-        // else if (direction == Directions.Up) {
-        //     this.arcCenter.y -= magnitude / 2
-        // }
-
+        if (direction == Directions.Left) {
+            this.arcCenter.x -= magnitude
+        }
+        else if (direction == Directions.Down) {
+            this.arcCenter.y -= magnitude
+        }
+        else if (direction == Directions.Right) {
+            this.arcCenter.x += magnitude
+        }
+        else if (direction == Directions.Up) {
+            this.arcCenter.y += magnitude
+        }
+        
         // Calculate radius of new arc
         const radius = this.currentFibonacci
 
@@ -85,15 +91,17 @@ export class FibonacciSpiral {
             radius, radius,
             Math.PI, (3 * Math.PI) / 2,
             false,
-            (Math.PI / 2) * this.currentIndex
+            (Math.PI / 2) * (this.currentIndex - 1)
         )
-        const points = curve.getPoints(50).map(point => new Vector3(point.x, 0, point.y))
+        
+        const height = this.arcs.length * 50
+        const points = curve.getPoints(50)
+            .map((point, index) => new Vector3(point.x, (height + index), -point.y))
 
         const geometry = new BufferGeometry().setFromPoints(points)
         const material = this.arcMaterial
 
         const newArc = new Line(geometry, material)
-        // newLine.rotation.y = (Math.PI * 2) * radius
         this.arcs.push(newArc)
         this.scene.add(newArc)
     }
