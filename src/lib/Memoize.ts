@@ -8,7 +8,6 @@ export function memoize(
         const hash = String(args)
 
         if (cache.has(hash)) {
-            console.log('xddd', hash)
             return cache.get(hash)
         }
         else {

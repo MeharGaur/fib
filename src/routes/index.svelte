@@ -40,8 +40,7 @@ import { FibonacciSpiral } from '$lib/FibonacciSpiral';
         // scene.add(directionalLight)
 
         // Instantiate Fibonacci Spiral
-        const spiral = new FibonacciSpiral({ shouldMemoize: true })
-        scene.add(spiral)
+        const spiral = new FibonacciSpiral(scene, true)
 
         // const spiralMemoized = new FibonacciSpiral(true)
 
@@ -71,7 +70,7 @@ import { FibonacciSpiral } from '$lib/FibonacciSpiral';
         }, { passive: true })
 
         // Camera
-        const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+        const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 10_000)
         camera.position.x = 0
         camera.position.y = 4
         camera.position.z = 0
