@@ -32,32 +32,18 @@ import { FibonacciSpiral } from '$lib/FibonacciSpiral';
         const scene = new Scene()
         
         // Lighting
-        const ambientLight = new AmbientLight(0xffffff, 1.0)
-        scene.add(ambientLight)
+        // const ambientLight = new AmbientLight(0xffffff, 1.0)
+        // scene.add(ambientLight)
 
-        const directionalLight = new DirectionalLight(0xffffff, 0.2)
-        directionalLight.position.set(5, 5, 5)
-        scene.add(directionalLight)
-
-        // Floor
-        const floor = new Mesh(
-            new BoxGeometry(10, 0, 10),
-            new MeshStandardMaterial({
-                color: '#777777',
-                metalness: 0.3,
-                roughness: 0.4
-            })
-        )
-
-        floor.position.y = 0
-        
-        scene.add(floor)
+        // const directionalLight = new DirectionalLight(0xffffff, 0.2)
+        // directionalLight.position.set(5, 5, 5)
+        // scene.add(directionalLight)
 
         // Instantiate Fibonacci Spiral
-        const spiral = new FibonacciSpiral()
+        const spiral = new FibonacciSpiral({ shouldMemoize: true })
         scene.add(spiral)
 
-        const spiralMemoized = new FibonacciSpiral(true)
+        // const spiralMemoized = new FibonacciSpiral(true)
 
 
 
