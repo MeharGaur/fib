@@ -30,25 +30,19 @@ import { FibonacciSpiral } from '$lib/FibonacciSpiral';
 
         // Scene
         const scene = new Scene()
-        
-        // Lighting
-        // const ambientLight = new AmbientLight(0xffffff, 1.0)
-        // scene.add(ambientLight)
-
-        // const directionalLight = new DirectionalLight(0xffffff, 0.2)
-        // directionalLight.position.set(5, 5, 5)
-        // scene.add(directionalLight)
 
         // Instantiate Fibonacci Spiral
         const spiral = new FibonacciSpiral(scene, true)
 
+        spiral.on('spiralUpdate', (currentFibonacci) => {
+            console.log('spiral update', currentFibonacci)
+            // camera.position.
+        })
         // const spiralMemoized = new FibonacciSpiral(true)
 
-
-
         // Axes Helper
-        const axesHelper = new AxesHelper()
-        scene.add(axesHelper)
+        // const axesHelper = new AxesHelper()
+        // scene.add(axesHelper)
 
         // ————————— WebGL Boilerplate —————————
 
@@ -70,10 +64,10 @@ import { FibonacciSpiral } from '$lib/FibonacciSpiral';
         }, { passive: true })
 
         // Camera
-        const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 10_000_000_000)
-        camera.position.x = 1
-        camera.position.y = 5
-        camera.position.z = 3
+        const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 999_999_999_999_999)
+        camera.position.x = 20
+        camera.position.y = 100
+        camera.position.z = 20
 
         scene.add(camera)
 
@@ -145,6 +139,7 @@ import { FibonacciSpiral } from '$lib/FibonacciSpiral';
         left: 0;
         outline: none;
         user-select: none;
+        cursor: all-scroll;
     }
 </style>
 

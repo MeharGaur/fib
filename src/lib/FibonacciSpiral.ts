@@ -4,6 +4,9 @@ import ValueBuffer from "./ValueBuffer"
 
 
 export class FibonacciSpiral {
+
+    /** Map for registering event handlers */
+    private eventHandlers = events
     
     private recentFibonaccis: ValueBuffer = new ValueBuffer(2)
     private currentFibonacci = 0
@@ -15,8 +18,7 @@ export class FibonacciSpiral {
     currentIndex: number
     computeNthFibonacci: (index: number) => number
     
-    constructor(private scene: Scene, shouldMemoize: boolean) {
-
+    constructor (private scene: Scene, shouldMemoize: boolean) {
         // Determine whether computeNthFibonacci should be memoized or not
         this.computeNthFibonacci = makeFibonacciComputer({ shouldMemoize })
         
@@ -25,7 +27,7 @@ export class FibonacciSpiral {
     }
 
 
-    private async startComputation() {
+    private async startComputation () {
         this.currentIndex = 1
 
         while (true) {
@@ -35,8 +37,8 @@ export class FibonacciSpiral {
 
             this.updateSpiral()
 
-
-
+            this.emit('spiralUpdate')
+            
             // TODO:
             /**
              * After every spiralUpdate, I need to zoom out
@@ -61,7 +63,7 @@ export class FibonacciSpiral {
     }
 
 
-    private updateSpiral() {
+    private updateSpiral () {
         // Determine direction to move center point
         const direction: Directions = (this.currentIndex - 1) % 4
 
@@ -94,9 +96,13 @@ export class FibonacciSpiral {
             (Math.PI / 2) * (this.currentIndex - 1)
         )
         
-        const height = this.arcs.length * 50
-        const points = curve.getPoints(50)
-            .map((point, index) => new Vector3(point.x, (height + index), -point.y))
+        const points = curve.getPoints(50).map((point) => (
+            new Vector3(
+                point.x, 
+                point.length(), 
+                -point.y
+            )
+        ))
 
         const geometry = new BufferGeometry().setFromPoints(points)
         const material = this.arcMaterial
@@ -104,6 +110,24 @@ export class FibonacciSpiral {
         const newArc = new Line(geometry, material)
         this.arcs.push(newArc)
         this.scene.add(newArc)
+    }
+
+    
+    /** Register event handler. TODO: enum for possible events */
+    on (eventCode: string, callback: Function) {
+        this.eventHandlers[ eventCode ].push(callback)
+    }
+
+
+    private emit (eventCode: string) {
+        for (const handler of this.eventHandlers[ eventCode ]) {
+            if (eventCode == 'spiralUpdate') {
+                handler(this.currentFibonacci)
+            }
+            else {
+                handler()
+            }
+        }
     }
 
 }
@@ -114,4 +138,14 @@ enum Directions {
     'Down' = 1,
     'Right' = 2,
     'Up' = 3
+}
+
+
+interface Events {
+    [ key: string ]: Function[ ]
+}
+
+/** TODO: this should be a class so we don't need to mutate global constant */
+const events: Events = {
+    'spiralUpdate': [ ]
 }
