@@ -12,12 +12,13 @@
 </script>
 
 <script lang="ts">
-import { FibonacciSpiral } from '$lib/FibonacciSpiral';
-
     import { onMount } from 'svelte'
-
-    import { AmbientLight, AxesHelper, BoxGeometry, Clock, DirectionalLight, Mesh, MeshStandardMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three'
+    
+    import { gsap } from 'gsap'
+    import { Clock, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three'
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+
+    import { FibonacciSpiral } from '$lib/FibonacciSpiral'
 
     // Canvas
     let canvas: HTMLCanvasElement
@@ -35,8 +36,18 @@ import { FibonacciSpiral } from '$lib/FibonacciSpiral';
         const spiral = new FibonacciSpiral(scene, true)
 
         spiral.on('spiralUpdate', (currentFibonacci) => {
-            console.log('spiral update', currentFibonacci)
-            // camera.position.
+            gsap.to({ }, {
+                duration: 0.5,
+                ease: 'power1.inOut',
+                onUpdate() {
+                    // The divisor below is arbitrary. 
+                    // The larger the divisor, more zoomed in it is.
+                    // Tween progress is a factor so that easing still shows.
+                    const divisor = Math.PI * ( (this.progress() * 5) + 5 )
+
+                    camera.translateZ( currentFibonacci / divisor )
+                }
+            })
         })
         // const spiralMemoized = new FibonacciSpiral(true)
 
@@ -65,9 +76,9 @@ import { FibonacciSpiral } from '$lib/FibonacciSpiral';
 
         // Camera
         const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 999_999_999_999_999)
-        camera.position.x = 20
-        camera.position.y = 100
-        camera.position.z = 20
+        camera.position.x = 5
+        camera.position.y = 25
+        camera.position.z = 5
 
         scene.add(camera)
 
