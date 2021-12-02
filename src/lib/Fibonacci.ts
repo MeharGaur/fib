@@ -1,7 +1,7 @@
 import { memoize } from "./Memoize"
 
 
-export function makeFibonacciComputer({ shouldMemoize = false }) {
+export function makeFibonacciComputer(shouldMemoize = false) {
 
     // Base fibonacci computer that computes nth fibonacci number
     let fibonacci = (n) => {

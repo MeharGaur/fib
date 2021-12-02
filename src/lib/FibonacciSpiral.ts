@@ -1,4 +1,5 @@
-import { BufferGeometry, CatmullRomCurve3, EllipseCurve, Line, LineBasicMaterial, Scene, Vector2, Vector3 } from "three"
+import { BufferGeometry, EllipseCurve, Line, LineBasicMaterial, Scene, Vector2, Vector3 } from "three"
+import type { ColorRepresentation } from "three"
 import { makeFibonacciComputer } from "./Fibonacci"
 import ValueBuffer from "./ValueBuffer"
 
@@ -12,15 +13,21 @@ export class FibonacciSpiral {
     private currentFibonacci = 0
 
     private arcs: Line[ ] = [ ]
-    private arcMaterial = new LineBasicMaterial({ color : 0xff0000 })
+    private arcMaterial: LineBasicMaterial
     private arcCenter = new Vector2(0, 0)
 
     currentIndex: number
     computeNthFibonacci: (index: number) => number
     
-    constructor (private scene: Scene, shouldMemoize: boolean) {
+    constructor (
+        private scene: Scene, 
+        public color: ColorRepresentation, 
+        public shouldMemoize: boolean
+    ) {
+        this.arcMaterial = new LineBasicMaterial({ color })
+
         // Determine whether computeNthFibonacci should be memoized or not
-        this.computeNthFibonacci = makeFibonacciComputer({ shouldMemoize })
+        this.computeNthFibonacci = makeFibonacciComputer(shouldMemoize)
         
         // Start the fibonacci computation
         this.startComputation()
@@ -47,15 +54,17 @@ export class FibonacciSpiral {
              * After adding camera zoom logic, instantiate
              * a second fib spiral and then figure out 
              * parameters for positioning it. Make em different colors,
-             * refer to my logo's color.
+             * refer to my logo's color. 
+             * 
+             * ****** Make them overlap on top of each other instead of side by side
              * 
              * Then do UI, show "The memoized spiral has computed 36 fibonacci numbers so far"
              */
             
 
 
-            // Minimum 1 second delay between fib numbers
-            await new Promise(resolve => setTimeout(resolve, 1_000))
+            // Minimum delay, allows for consistent animation 
+            await new Promise(resolve => setTimeout(resolve, 750))
             
             this.recentFibonaccis.push(this.currentFibonacci)
             this.currentIndex++

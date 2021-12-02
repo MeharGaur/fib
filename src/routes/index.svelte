@@ -15,7 +15,7 @@
     import { onMount } from 'svelte'
     
     import { gsap } from 'gsap'
-    import { Clock, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three'
+    import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
     import { FibonacciSpiral } from '$lib/FibonacciSpiral'
@@ -33,9 +33,11 @@
         const scene = new Scene()
 
         // Instantiate Fibonacci Spiral
-        const spiral = new FibonacciSpiral(scene, true)
+        const spiralMemoized = new FibonacciSpiral(scene, 0xff00ff, true)
 
-        spiral.on('spiralUpdate', (currentFibonacci) => {
+        const spiral = new FibonacciSpiral(scene, 0x00ffff, false)
+
+        spiralMemoized.on('spiralUpdate', (currentFibonacci) => {
             gsap.to({ }, {
                 duration: 0.5,
                 ease: 'power1.inOut',
@@ -49,7 +51,7 @@
                 }
             })
         })
-        // const spiralMemoized = new FibonacciSpiral(true)
+
 
         // Axes Helper
         // const axesHelper = new AxesHelper()
@@ -75,7 +77,7 @@
         }, { passive: true })
 
         // Camera
-        const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 999_999_999_999_999)
+        const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 999_999_999_999_999_999)
         camera.position.x = 5
         camera.position.y = 25
         camera.position.z = 5
