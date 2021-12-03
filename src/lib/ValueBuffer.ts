@@ -4,7 +4,7 @@
  * Essentially an array that will only store up to N-number of values. 
  * Any additional values added overwrite the oldest values.
  */
-export default class ValueBuffer {
+class ValueBuffer {
 
     private _maxSize: number
     array: any[ ] = [ ]
@@ -31,3 +31,6 @@ export default class ValueBuffer {
     }
 
 }
+
+
+export default ValueBuffer

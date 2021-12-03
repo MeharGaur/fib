@@ -1,23 +1,24 @@
 import { BufferGeometry, EllipseCurve, Line, LineBasicMaterial, Scene, Vector2, Vector3 } from "three"
 import type { ColorRepresentation } from "three"
-import { makeFibonacciFunction } from "./Fibonacci"
+import { wrap } from "comlink"
+
 import ValueBuffer from "./ValueBuffer"
+import FibonacciWorkerConstructor from './FibonacciWorker?worker'
+import type FibonacciWorker from './FibonacciWorker'
 
-
-export class FibonacciSpiral {
+class FibonacciSpiral {
 
     /** Map for registering event handlers */
     private eventHandlers = events
-    
     private recentFibonaccis: ValueBuffer = new ValueBuffer(2)
-    private currentFibonacci = 0
-
+    private worker: FibonacciWorker
+    
     private arcs: Line[ ] = [ ]
     private arcMaterial: LineBasicMaterial
     private arcCenter = new Vector2(0, 0)
-
-    currentIndex: number
-    computeNthFibonacci: (index: number) => number
+    
+    public currentFibonacci = 0
+    public currentIndex: number = 1
     
     constructor (
         private scene: Scene, 
@@ -26,24 +27,22 @@ export class FibonacciSpiral {
     ) {
         this.arcMaterial = new LineBasicMaterial({ color })
 
-        // Determine whether computeNthFibonacci should be memoized or not
-        this.computeNthFibonacci = makeFibonacciFunction(shouldMemoize)
-        
         // Start the fibonacci computation
         this.startComputation()
     }
 
-    /**
-     * ***** TODO: Need to spawn a WebWorker here and do the computation
-     * off the main thread so that fib computation does not freeze 
-     * the rest of the app, especially the UI.
-     * https://vitejs.dev/guide/features.html#web-workers
-     */
-    private async startComputation () {
-        this.currentIndex = 1
 
-        while (false) { /////////////////////
-            this.currentFibonacci = this.computeNthFibonacci(
+    private async startComputation () {
+        // Spawn worker for fibonacci computation
+        const FibonacciWorker = wrap(
+            new FibonacciWorkerConstructor()
+        )
+        
+        // @ts-ignore
+        this.worker = await new FibonacciWorker(this.shouldMemoize)
+
+        while (true) { 
+            this.currentFibonacci = await this.worker.computeNthFibonacci(
                 this.currentIndex
             )
 
@@ -66,8 +65,6 @@ export class FibonacciSpiral {
              * Then do UI, show "The memoized spiral has computed 36 fibonacci numbers so far"
              */
             
-
-
             // Minimum delay, allows for consistent animation 
             await new Promise(resolve => setTimeout(resolve, 750))
             
@@ -135,12 +132,7 @@ export class FibonacciSpiral {
 
     private emit (eventCode: string) {
         for (const handler of this.eventHandlers[ eventCode ]) {
-            if (eventCode == 'spiralUpdate') {
-                handler(this.currentFibonacci)
-            }
-            else {
-                handler()
-            }
+            handler(this.currentIndex, this.currentFibonacci)
         }
     }
 
@@ -163,3 +155,6 @@ interface Events {
 const events: Events = {
     'spiralUpdate': [ ]
 }
+
+
+export default FibonacciSpiral

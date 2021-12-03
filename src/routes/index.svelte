@@ -5,7 +5,10 @@
 
 <canvas bind:this={canvas} />
 
-<DashBar></DashBar>
+<DashBar 
+    { bruteForceSpiral }
+    { memoizedSpiral }
+/>
 
 
 <!--—————————— SCRIPTS ——————————-->
@@ -21,12 +24,16 @@
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
     import DashBar from '$lib/components/DashBar.svelte'
-    import { FibonacciSpiral } from '$lib/FibonacciSpiral'
+    import FibonacciSpiral from '$lib/FibonacciSpiral'
 
     // Canvas
     let canvas: HTMLCanvasElement
 
     const sizes = { width: 0, height: 0 }
+
+    // Fibonacci Spirals
+    let memoizedSpiral: FibonacciSpiral
+    let bruteForceSpiral: FibonacciSpiral
 
     onMount(() => {
 
@@ -36,26 +43,25 @@
         const scene = new Scene()
 
         // Instantiate Fibonacci Spiral
-        const spiralMemoized = new FibonacciSpiral(scene, 0xff00ff, true)
+        memoizedSpiral = new FibonacciSpiral(scene, 0xff00ff, true)
+        bruteForceSpiral = new FibonacciSpiral(scene, 0x00ffff, false)
 
-        const spiral = new FibonacciSpiral(scene, 0x00ffff, false)
+        memoizedSpiral.on('spiralUpdate', 
+            (currentIndex: number, currentFibonacci: number) => {
+                gsap.to({ }, {
+                    duration: 0.5,
+                    ease: 'power1.inOut',
+                    onUpdate() {
+                        // The divisor below is arbitrary. 
+                        // The larger the divisor, more zoomed in it is.
+                        // Tween progress is a factor so that easing still shows.
+                        const divisor = Math.PI * ( (this.progress() * 5) + 5 )
 
-        spiralMemoized.on('spiralUpdate', (currentFibonacci) => {
-            // update UI here - for both spirals
-
-            gsap.to({ }, {
-                duration: 0.5,
-                ease: 'power1.inOut',
-                onUpdate() {
-                    // The divisor below is arbitrary. 
-                    // The larger the divisor, more zoomed in it is.
-                    // Tween progress is a factor so that easing still shows.
-                    const divisor = Math.PI * ( (this.progress() * 5) + 5 )
-
-                    camera.translateZ( currentFibonacci / divisor )
-                }
-            })
-        })
+                        camera.translateZ( currentFibonacci / divisor )
+                    }
+                })
+            }
+        )
 
 
         // Axes Helper

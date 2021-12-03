@@ -1,5 +1,5 @@
 
-export function memoize(
+function memoize(
     callback: (...any) => any, 
     cache: Map<string, any> = new Map()
 ) {
@@ -17,3 +17,5 @@ export function memoize(
         }
     }
 }
+
+export default memoize
