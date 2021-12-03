@@ -5,6 +5,8 @@
 
 <canvas bind:this={canvas} />
 
+<DashBar></DashBar>
+
 
 <!--—————————— SCRIPTS ——————————-->
 <script context="module">
@@ -18,6 +20,7 @@
     import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
+    import DashBar from '$lib/components/DashBar.svelte'
     import { FibonacciSpiral } from '$lib/FibonacciSpiral'
 
     // Canvas
@@ -38,6 +41,8 @@
         const spiral = new FibonacciSpiral(scene, 0x00ffff, false)
 
         spiralMemoized.on('spiralUpdate', (currentFibonacci) => {
+            // update UI here - for both spirals
+
             gsap.to({ }, {
                 duration: 0.5,
                 ease: 'power1.inOut',
@@ -135,6 +140,10 @@
 <!--—————————— STYLES ——————————-->
 
 <style lang="scss">
+    :root {
+        font-family: Helvetica, Arial, sans-serif;
+    }
+
     * {
         margin: 0;
         padding: 0;

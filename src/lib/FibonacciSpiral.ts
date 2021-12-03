@@ -1,6 +1,6 @@
 import { BufferGeometry, EllipseCurve, Line, LineBasicMaterial, Scene, Vector2, Vector3 } from "three"
 import type { ColorRepresentation } from "three"
-import { makeFibonacciComputer } from "./Fibonacci"
+import { makeFibonacciFunction } from "./Fibonacci"
 import ValueBuffer from "./ValueBuffer"
 
 
@@ -27,17 +27,22 @@ export class FibonacciSpiral {
         this.arcMaterial = new LineBasicMaterial({ color })
 
         // Determine whether computeNthFibonacci should be memoized or not
-        this.computeNthFibonacci = makeFibonacciComputer(shouldMemoize)
+        this.computeNthFibonacci = makeFibonacciFunction(shouldMemoize)
         
         // Start the fibonacci computation
         this.startComputation()
     }
 
-
+    /**
+     * ***** TODO: Need to spawn a WebWorker here and do the computation
+     * off the main thread so that fib computation does not freeze 
+     * the rest of the app, especially the UI.
+     * https://vitejs.dev/guide/features.html#web-workers
+     */
     private async startComputation () {
         this.currentIndex = 1
 
-        while (true) {
+        while (false) { /////////////////////
             this.currentFibonacci = this.computeNthFibonacci(
                 this.currentIndex
             )
