@@ -43,7 +43,8 @@
 
         // Instantiate Fibonacci Spiral
         memoizedSpiral = new FibonacciSpiral(scene, 0x00ffff, true)
-        bruteForceSpiral = new FibonacciSpiral(scene, 0xff00ff, false)
+        // Brute-force second because we want it to overlap
+        bruteForceSpiral = new FibonacciSpiral(scene, 0xff00ff, false) 
 
         // Zoom out the camera in proportion to the spiral size.
         memoizedSpiral.on(EventCode.SpiralUpdate, 
@@ -82,10 +83,10 @@
         }, { passive: true })
 
         // Camera
-        const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 999_999_999_999_999_999_999)
-        camera.position.x = 5
+        const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 999_999_999_999_999_999_999_999)
+        camera.position.x = 10
         camera.position.y = 25
-        camera.position.z = 5
+        camera.position.z = 10
 
         scene.add(camera)
 
@@ -93,6 +94,7 @@
         const controls = new OrbitControls(camera, canvas)
         controls.enableDamping = true
         controls.enablePan = false
+        controls.enableZoom = false
 
         // Renderer
         const renderer = new WebGLRenderer({

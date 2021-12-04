@@ -115,7 +115,7 @@ class FibonacciSpiral {
 
     
     /** Register an event handler callback */
-    on (eventCode: EventCode, callback: Function) {
+    public on (eventCode: EventCode, callback: Function) {
         this.eventHandlers.get(eventCode).push(callback)
     }
 
