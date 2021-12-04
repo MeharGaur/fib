@@ -1,4 +1,4 @@
-// This is a WebWorker script file
+// This is a WebWorker script file, gets processed by Vite
 
 import { expose } from 'comlink'
 import memoize from './memoize'
@@ -8,7 +8,6 @@ class FibonacciWorker {
     public computeNthFibonacci: (n: number) => number
 
     constructor (public shouldMemoize: boolean = false) {
-
         // Base fibonacci function that computes nth fibonacci number
         let fibonacci = (n) => {
             // Base case
@@ -25,18 +24,17 @@ class FibonacciWorker {
 
         // Memoize if asked to
         if (shouldMemoize) {
-            // @ts-ignore
             fibonacci = memoize(fibonacci)
         }
 
         this.computeNthFibonacci = fibonacci
-
     }
 
 }
+
 
 // Comlink expose
 expose(FibonacciWorker)
 
 
-export default FibonacciWorker
+export type { FibonacciWorker }

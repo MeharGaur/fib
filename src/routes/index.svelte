@@ -20,11 +20,11 @@
     import { onMount } from 'svelte'
     
     import { gsap } from 'gsap'
-    import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+    import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
     import DashBar from '$lib/components/DashBar.svelte'
-    import FibonacciSpiral from '$lib/FibonacciSpiral'
+    import FibonacciSpiral, { EventCode } from '$lib/FibonacciSpiral'
 
     // Canvas
     let canvas: HTMLCanvasElement
@@ -36,37 +36,31 @@
     let bruteForceSpiral: FibonacciSpiral
 
     onMount(() => {
-
         // ————————— 3D World —————————
 
         // Scene
         const scene = new Scene()
 
         // Instantiate Fibonacci Spiral
-        memoizedSpiral = new FibonacciSpiral(scene, 0xff00ff, true)
-        bruteForceSpiral = new FibonacciSpiral(scene, 0x00ffff, false)
+        memoizedSpiral = new FibonacciSpiral(scene, 0x00ffff, true)
+        bruteForceSpiral = new FibonacciSpiral(scene, 0xff00ff, false)
 
-        memoizedSpiral.on('spiralUpdate', 
+        // Zoom out the camera in proportion to the spiral size.
+        memoizedSpiral.on(EventCode.SpiralUpdate, 
             (currentIndex: number, currentFibonacci: number) => {
                 gsap.to({ }, {
                     duration: 0.5,
                     ease: 'power1.inOut',
                     onUpdate() {
-                        // The divisor below is arbitrary. 
-                        // The larger the divisor, more zoomed in it is.
+                        // The larger the divisor, the more zoomed in it is.
                         // Tween progress is a factor so that easing still shows.
                         const divisor = Math.PI * ( (this.progress() * 5) + 5 )
-
                         camera.translateZ( currentFibonacci / divisor )
                     }
                 })
             }
         )
 
-
-        // Axes Helper
-        // const axesHelper = new AxesHelper()
-        // scene.add(axesHelper)
 
         // ————————— WebGL Boilerplate —————————
 
@@ -88,7 +82,7 @@
         }, { passive: true })
 
         // Camera
-        const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 999_999_999_999_999_999)
+        const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 999_999_999_999_999_999_999)
         camera.position.x = 5
         camera.position.y = 25
         camera.position.z = 5
@@ -111,11 +105,7 @@
         renderer.setClearColor(0x333333)
 
         // Render Loop
-        const clock = new Clock()
-
         function render() {
-            const elapsedTime = clock.getElapsedTime()
-
             // Update controls
             controls.update()
 

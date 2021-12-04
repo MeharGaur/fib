@@ -4,12 +4,12 @@ import { wrap } from "comlink"
 
 import ValueBuffer from "./ValueBuffer"
 import FibonacciWorkerConstructor from './FibonacciWorker?worker'
-import type FibonacciWorker from './FibonacciWorker'
+import type { FibonacciWorker } from './FibonacciWorker'
 
 class FibonacciSpiral {
 
     /** Map for registering event handlers */
-    private eventHandlers = events
+    private eventHandlers: Map<EventCode, Function[ ]> = new Map()
     private recentFibonaccis: ValueBuffer = new ValueBuffer(2)
     private worker: FibonacciWorker
     
@@ -26,6 +26,11 @@ class FibonacciSpiral {
         public shouldMemoize: boolean
     ) {
         this.arcMaterial = new LineBasicMaterial({ color })
+
+        // Initialize eventHandlers map with an empty array for each possible event code
+        for (const eventCode in EventCode) {
+            this.eventHandlers.set( EventCode[eventCode], [ ] )
+        }
 
         // Start the fibonacci computation
         this.startComputation()
@@ -48,22 +53,7 @@ class FibonacciSpiral {
 
             this.updateSpiral()
 
-            this.emit('spiralUpdate')
-            
-            // TODO:
-            /**
-             * After every spiralUpdate, I need to zoom out
-             * the camera a bit. 
-             * 
-             * After adding camera zoom logic, instantiate
-             * a second fib spiral and then figure out 
-             * parameters for positioning it. Make em different colors,
-             * refer to my logo's color. 
-             * 
-             * ****** Make them overlap on top of each other instead of side by side
-             * 
-             * Then do UI, show "The memoized spiral has computed 36 fibonacci numbers so far"
-             */
+            this.emit(EventCode.SpiralUpdate)
             
             // Minimum delay, allows for consistent animation 
             await new Promise(resolve => setTimeout(resolve, 750))
@@ -75,23 +65,23 @@ class FibonacciSpiral {
 
 
     private updateSpiral () {
-        // Determine direction to move center point
-        const direction: Directions = (this.currentIndex - 1) % 4
+        // Determine which direction to move center point
+        const direction: Direction = (this.currentIndex - 1) % 4
 
-        // Calculate magnitude to move center point
+        // Calculate the magnitude to move center point
         const magnitude = -(this.recentFibonaccis.array[1] ?? 0)
 
         // Calculate center/origin coordinate
-        if (direction == Directions.Left) {
+        if (direction == Direction.Left) {
             this.arcCenter.x -= magnitude
         }
-        else if (direction == Directions.Down) {
+        else if (direction == Direction.Down) {
             this.arcCenter.y -= magnitude
         }
-        else if (direction == Directions.Right) {
+        else if (direction == Direction.Right) {
             this.arcCenter.x += magnitude
         }
-        else if (direction == Directions.Up) {
+        else if (direction == Direction.Up) {
             this.arcCenter.y += magnitude
         }
         
@@ -110,7 +100,7 @@ class FibonacciSpiral {
         const points = curve.getPoints(50).map((point) => (
             new Vector3(
                 point.x, 
-                point.length(), 
+                point.length(), // Length of vector using pythagorean theorem.
                 -point.y
             )
         ))
@@ -124,14 +114,14 @@ class FibonacciSpiral {
     }
 
     
-    /** Register event handler. TODO: enum for possible events */
-    on (eventCode: string, callback: Function) {
-        this.eventHandlers[ eventCode ].push(callback)
+    /** Register an event handler callback */
+    on (eventCode: EventCode, callback: Function) {
+        this.eventHandlers.get(eventCode).push(callback)
     }
 
 
-    private emit (eventCode: string) {
-        for (const handler of this.eventHandlers[ eventCode ]) {
+    private emit (eventCode: EventCode) {
+        for (const handler of this.eventHandlers.get(eventCode)) {
             handler(this.currentIndex, this.currentFibonacci)
         }
     }
@@ -139,22 +129,19 @@ class FibonacciSpiral {
 }
 
 
-enum Directions {
-    'Left' = 0,
-    'Down' = 1,
-    'Right' = 2,
-    'Up' = 3
+enum Direction {
+    Left = 0,
+    Down = 1,
+    Right = 2,
+    Up = 3
 }
 
 
-interface Events {
-    [ key: string ]: Function[ ]
-}
-
-/** TODO: this should be a class so we don't need to mutate global constant */
-const events: Events = {
-    'spiralUpdate': [ ]
+enum EventCode {
+    SpiralUpdate = 'spiralUpdate'
 }
 
 
 export default FibonacciSpiral
+
+export { EventCode }
